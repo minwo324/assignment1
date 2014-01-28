@@ -89,11 +89,15 @@ public class Indexer {
 		String[] list = tweet.trim().toLowerCase().split(" ");
 		for (String word: list) {
 			word.trim();
-			word = this.stripPunctuation(word);
-			if (word.length() != 0 && !this.isStopWord(word)) {
-				word = this.stem(word);
-				word = this.norm(word);
-				result.add(word);
+
+			if (!this.isURL(word)){
+				
+				word = this.stripPunctuation(word);
+				if (word.length() != 0 && !this.isStopWord(word) && !this.isNum(word)) {
+					word = this.norm(word);
+					word = this.stem(word);				
+					result.add(word);
+				}
 			}
 		}
 		StringBuilder sb = new StringBuilder();
@@ -102,8 +106,18 @@ public class Indexer {
 		}
 		return sb.toString();
 	}
+	
+	//method to check if the string is URL
+	public boolean isURL(String word) {
+		
+		if (word.contains("http")){
+			return true;
+		} else
+			return false;
+	}
 
-	private String norm(String word) {
+	//method to clean the word
+	public String norm(String word) {
 		
 		if (wordDict.containsKey(word) == true) {
 			word = wordDict.get(word);
@@ -111,10 +125,12 @@ public class Indexer {
 		return word;
 	}
 
+	//method to check if the word is in the stopword list
 	public boolean isStopWord(String word) {
 		return Indexer.STOP_WORDS.contains(word);
 	}
 
+	//method to strip the punctuation
 	public String stripPunctuation(String word) {
 		StringBuilder sb = new StringBuilder();
 		for (char c: word.toCharArray()) {
@@ -125,6 +141,7 @@ public class Indexer {
 		return sb.toString();
 	}
 
+	//method to stem the word
 	@SuppressWarnings("rawtypes")
 	public String stem(String word) {
 		SnowballStemmer stemmer;
@@ -141,5 +158,18 @@ public class Indexer {
 		}	
 		return null;
 	}	
+	
+	//method to check if the word is a number
+	public boolean isNum(String strNum) {
+	    boolean ret = true;
+	    try {
+
+	        Double.parseDouble(strNum);
+
+	    }catch (NumberFormatException e) {
+	        ret = false;
+	    }
+	    return ret;
+	}
 	
 }
